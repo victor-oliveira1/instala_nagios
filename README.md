@@ -2,7 +2,7 @@
 Script de instalação automática do Nagios 4.2 + plugins para o Fedora 24.
 
 ##Descrição:
-**instala_nagios** é um bash script que instala os pacotes necessários para o programa nagios, compila, configura firewall e acessos automaticamente.
+**instala_nagios** é um bash script que instala os pacotes necessários para o programa nagios, compila, configura firewall e acessos automaticamente. Também é criado o script "nagios_check", que verifica as configurações e, caso esteja ok, reinicia o serviço.
 
 ##Utilização:
 **1**- Primeiramente faça o download do script para o computador:
