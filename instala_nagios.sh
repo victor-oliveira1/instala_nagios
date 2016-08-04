@@ -84,6 +84,34 @@ echo "Configurando Selinux"
 sudo setenforce 0
 sudo sed -i s/SELINUX=enforcing/SELINUX=permissive/ /etc/selinux/config
 
+echo "Instalando script de checagem de serviço"
+cd ~/
+echo '#!/bin/bash
+#
+# Checa/reinicia Nagios
+#
+
+sudo /usr/local/nagios/bin/nagios -v /usr/local/nagios/etc/nagios.cfg
+
+if [ "$?" = "0" ]; then
+	echo
+	read -ep "Configuração OK! Reiniciar serviços? (n ou s): " questao
+		case "$questao" in
+			[Nn])
+			exit
+			;;
+			[Ss])
+			sudo systemctl restart nagios
+			;;
+			*)
+			echo "Opção inválida."
+		esac
+else
+	echo "Verifique a configuração do Nagios."
+fi' > nagios_check
+sudo mv ~/nagios_check /usr/bin/
+sudo chmod +x /usr/bin/nagios_check
+
 echo "Configurando firewall"
 sudo firewall-cmd --add-service=http
 sudo firewall-cmd --add-service=http --permanent
