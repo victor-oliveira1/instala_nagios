@@ -124,5 +124,10 @@ sudo systemctl start httpd nagios
 
 clear
 echo "Nagios 4.2 instalado!"
-echo "Acesse o monitoramento através do link: http://<endereço ip>/nagios"
+echo "Acesse o monitoramento através de um dos links:"
+for ip in $(for name in $(ifconfig|grep UP|cut -d ':' -f1); do ifconfig $name|grep netmask|cut -d ' ' -f10; done); do
+echo "http://$ip/nagios"
+done
+echo "Possíveis endereços IP:"
+echo
 echo "Usuário: nagiosadmin e a senha configurada anteriormente"
