@@ -3,7 +3,7 @@
 # victor.oliveira@gmx.com
 
 clear
-echo "Instalação automática - Nagios 4.2"
+echo "Instalação automática - Nagios 4.3.2"
 echo "A senha de root será solicitada para instalar alguns pacotes."
 read -ep "Prosseguir com a instalação? (enter ou n): " teste
 
@@ -44,16 +44,16 @@ mkdir nagios-install
 cd nagios-install
 
 echo "Baixando Nagios e plugins"
-wget 'https://assets.nagios.com/downloads/nagioscore/releases/nagios-4.2.0.tar.gz#_ga=1.94145432.420122707.1469735867'
+wget 'https://assets.nagios.com/downloads/nagioscore/releases/nagios-4.3.2.tar.gz'
 
-wget 'https://nagios-plugins.org/download/nagios-plugins-2.1.2.tar.gz#_ga=1.60581800.420122707.1469735867'
+wget 'https://nagios-plugins.org/download/nagios-plugins-2.2.1.tar.gz'
 
 echo "Extraindo arquivos"
-tar xvf nagios-4.2.0.tar.gz
-tar xvf nagios-plugins-2.1.2.tar.gz
+tar xvf nagios-4.3.2.tar.gz
+tar xvf nagios-plugins-2.2.1.tar.gz
 
 echo "Compilando"
-cd nagios-4.2.0/
+cd nagios-4.3.2/
 ./configure
 make all
 sudo make install
@@ -63,7 +63,7 @@ sudo make install-config
 sudo make install-webconf
 sudo make install-exfoliation
 
-cd ../nagios-plugins-2.1.2/
+cd ../nagios-plugins-2.2.1/
 ./configure
 make all
 sudo make install
@@ -123,7 +123,7 @@ echo "Iniciando serviços"
 sudo systemctl start httpd nagios
 
 clear
-echo "Nagios 4.2 instalado!"
+echo "Nagios 4.3.2 instalado!"
 echo "Acesse o monitoramento através de um dos links:"
 for ip in $(for name in $(ifconfig|grep UP|cut -d ':' -f1); do ifconfig $name|grep netmask|cut -d ' ' -f10; done); do
 echo "http://$ip/nagios"
