@@ -10,7 +10,3 @@ Script de instalação automática do Nagios 4.3.2 + plugins 2.2.1 para o Fedora
 
 **2**- Dê permissões de execução:
 > *chmod +x ./instala-nagios.sh*
-
-##Observações:
-Funcionalidades podem ser adicionadas ou removidas a qualquer momento sem aviso.
-Idéias ou sugestões podem ser enviadas para o email: victor.oliveira@gmx.com.
