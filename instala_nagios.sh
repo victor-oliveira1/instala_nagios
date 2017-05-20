@@ -1,17 +1,33 @@
 #!/bin/bash
 # Instalação automática do Nagios no Fedora
+# Programas utilizados:
+# curl, ifconfig, whereis, wget
 # victor.oliveira@gmx.com
+
+#TODO: Baixar sempre a versão atual
+#curl 'https://www.nagios.org/checkforupdates/?product=nagioscore'| grep -Eo "Nagios Core is \w{1}\.\w{1}\.\w{1}"
+url_nagios='https://assets.nagios.com/downloads/nagioscore/releases/nagios-4.3.2.tar.gz'
+url_plugins='https://nagios-plugins.org/download/nagios-plugins-2.2.1.tar.gz'
 
 clear
 echo "Instalação automática - Nagios 4.3.2"
-echo "A senha de root será solicitada para instalar alguns pacotes."
-read -ep "Prosseguir com a instalação? (enter ou n): " teste
 
+#Verifica se o usuário é root
+id| grep root &> /dev/null
+if [ $? != 0 ]; then
+	echo "Para executar o script é necessário estar logado como root."
+	exit
+fi
+
+read -ep "Prosseguir com a instalação? (enter ou n): " teste
 case $teste in
 	[Nn])
 	echo "Instalação cancelada. Saindo."
 	exit
 esac
+
+echo "Baixando pacotes necessários para compilar o programa"
+dnf -y install autoconf automake gcc gcc-c++ gd-devel httpd php wget net-tools curl
 
 clear
 echo "Verificando conexão com a internet"
@@ -28,14 +44,11 @@ fi
 
 sleep 2
 
-echo "Baixando pacotes necessários para compilar o programa"
-sudo dnf -y install autoconf automake gcc gcc-c++ gd-devel httpd php
-
 echo "Criando usuário nagios"
-sudo useradd -m nagios
+useradd -m nagios
 
 echo "Configurando permissões do apache"
-sudo usermod -aG nagios apache
+usermod -aG nagios apache
 
 echo "Criando pastas necessárias"
 cd ~/
@@ -44,9 +57,9 @@ mkdir nagios-install
 cd nagios-install
 
 echo "Baixando Nagios e plugins"
-wget 'https://assets.nagios.com/downloads/nagioscore/releases/nagios-4.3.2.tar.gz'
+wget "${url_nagios}"
 
-wget 'https://nagios-plugins.org/download/nagios-plugins-2.2.1.tar.gz'
+wget "${url_plugins}"
 
 echo "Extraindo arquivos"
 tar xvf nagios-4.3.2.tar.gz
@@ -56,17 +69,17 @@ echo "Compilando"
 cd nagios-4.3.2/
 ./configure
 make all
-sudo make install
-sudo make install-init
-sudo make install-commandmode
-sudo make install-config
-sudo make install-webconf
-sudo make install-exfoliation
+make install
+make install-init
+make install-commandmode
+make install-config
+make install-webconf
+make install-exfoliation
 
 cd ../nagios-plugins-2.2.1/
 ./configure
 make all
-sudo make install
+make install
 
 echo "Criando link simbólico"
 cd ~/
@@ -74,15 +87,15 @@ ln -s /usr/local/nagios/
 
 clear
 echo "Digite a senha do usuário WEB nagiosadmin"
-sudo htpasswd -c /usr/local/nagios/etc/htpasswd.users nagiosadmin
+htpasswd -c /usr/local/nagios/etc/htpasswd.users nagiosadmin
 
 clear
 echo "Digite a senha do usuário nagios"
-sudo passwd nagios
+passwd nagios
 
 echo "Configurando Selinux"
-sudo setenforce 0
-sudo sed -i s/SELINUX=enforcing/SELINUX=permissive/ /etc/selinux/config
+setenforce 0
+sed -i s/SELINUX=enforcing/SELINUX=permissive/ /etc/selinux/config
 
 echo "Instalando script de checagem de serviço"
 cd ~/
@@ -91,7 +104,7 @@ echo '#!/bin/bash
 # Checa/reinicia Nagios
 #
 
-sudo /usr/local/nagios/bin/nagios -v /usr/local/nagios/etc/nagios.cfg
+/usr/local/nagios/bin/nagios -v /usr/local/nagios/etc/nagios.cfg
 
 if [ "$?" = "0" ]; then
 	echo
@@ -101,7 +114,7 @@ if [ "$?" = "0" ]; then
 			exit
 			;;
 			[Ss])
-			sudo systemctl restart nagios
+			systemctl restart nagios
 			;;
 			*)
 			echo "Opção inválida."
@@ -109,18 +122,18 @@ if [ "$?" = "0" ]; then
 else
 	echo "Verifique a configuração do Nagios."
 fi' > nagios_check
-sudo mv ~/nagios_check /usr/bin/
-sudo chmod +x /usr/bin/nagios_check
+mv ~/nagios_check /usr/bin/
+chmod +x /usr/bin/nagios_check
 
 echo "Configurando firewall"
-sudo firewall-cmd --add-service=http
-sudo firewall-cmd --add-service=http --permanent
+firewall-cmd --add-service=http
+firewall-cmd --add-service=http --permanent
 
 echo "Configurando inicialização automática dos serviços"
-sudo systemctl enable nagios httpd
+systemctl enable nagios httpd
 
 echo "Iniciando serviços"
-sudo systemctl start httpd nagios
+systemctl start httpd nagios
 
 clear
 echo "Nagios 4.3.2 instalado!"
