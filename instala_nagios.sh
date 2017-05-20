@@ -1,13 +1,7 @@
 #!/bin/bash
 # Instalação automática do Nagios no Fedora
 # Programas utilizados:
-# curl, ifconfig, whereis, wget
 # victor.oliveira@gmx.com
-
-#TODO: Baixar sempre a versão atual
-#curl 'https://www.nagios.org/checkforupdates/?product=nagioscore'| grep -Eo "Nagios Core is \w{1}\.\w{1}\.\w{1}"
-url_nagios='https://assets.nagios.com/downloads/nagioscore/releases/nagios-4.3.2.tar.gz'
-url_plugins='https://nagios-plugins.org/download/nagios-plugins-2.2.1.tar.gz'
 
 clear
 echo "Instalação automática - Nagios 4.3.2"
@@ -27,7 +21,7 @@ case $teste in
 esac
 
 echo "Baixando pacotes necessários para compilar o programa"
-dnf -y install autoconf automake gcc gcc-c++ gd-devel httpd php wget net-tools curl
+dnf -y install autoconf automake gcc gcc-c++ gd-devel httpd php wget net-tools curl sed|| echo "Houve um erro na instalação."; exit
 
 clear
 echo "Verificando conexão com a internet"
@@ -43,6 +37,27 @@ else
 fi
 
 sleep 2
+
+echo "Verificando versão atual..."
+versao_nagios=($(curl -s "https://www.nagios.org/checkforupdates/?product=nagioscore"| grep -Eo "is [0-9]{1}\.[0-9]{1}\.[0-9]{1}"))
+versao_nagios=${versao_nagios[1]}
+if [ -z ${versao_nagios} ]; then
+	echo "Não foi possível encontrar a versão atual."
+	exit
+fi
+
+versao_plugins=($(curl -s "https://www.nagios.org/downloads/nagios-plugins/"| grep -Eo "Plugins [0-9]{1}\.[0-9]{1}\.[0-9]{1}"))
+versao_plugins=${versao_plugins[1]}
+if [ -z ${versao_plugins} ]; then
+	echo "Não foi possível encontrar a versão atual."
+	exit
+fi
+
+arquivo_nagios="nagios-${versao_nagios}.tar.gz"
+arquivo_plugins="nagios-plugins-${versao_plugins}.tar.gz"
+
+url_nagios="https://assets.nagios.com/downloads/nagioscore/releases/${arquivo_nagios}"
+url_plugins="https://nagios-plugins.org/download/${arquivo_plugins}"
 
 echo "Criando usuário nagios"
 useradd -m nagios
@@ -62,11 +77,11 @@ wget "${url_nagios}"
 wget "${url_plugins}"
 
 echo "Extraindo arquivos"
-tar xvf nagios-4.3.2.tar.gz
-tar xvf nagios-plugins-2.2.1.tar.gz
+tar xvf ${arquivo_nagios}
+tar xvf ${arquivo_plugins}
 
 echo "Compilando"
-cd nagios-4.3.2/
+cd ${arquivo_nagios%.tar.gz}/
 ./configure
 make all
 make install
@@ -76,7 +91,7 @@ make install-config
 make install-webconf
 make install-exfoliation
 
-cd ../nagios-plugins-2.2.1/
+cd ../${arquivo_plugins%.tar.gz}/
 ./configure
 make all
 make install
