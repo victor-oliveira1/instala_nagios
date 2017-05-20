@@ -21,7 +21,7 @@ case $teste in
 esac
 
 echo "Baixando pacotes necessários para compilar o programa"
-dnf -y -q install autoconf automake gcc gcc-c++ gd-devel httpd php wget net-tools curl tar sed unzip|| (echo "Houve um erro na instalação."; exit)
+dnf -y install autoconf automake gcc gcc-c++ gd-devel httpd php wget net-tools curl tar sed unzip|| (echo "Houve um erro na instalação."; exit)
 
 clear
 echo "Verificando conexão com a internet"
@@ -141,8 +141,7 @@ mv ~/nagios_check /usr/bin/
 chmod +x /usr/bin/nagios_check
 
 echo "Configurando firewall"
-firewall-cmd --add-service=http
-firewall-cmd --add-service=http --permanent
+firewall-cmd --add-service=http && (firewall-cmd --add-service=http --permanent  &> /dev/null|| echo "Não é necessária nenhuma configuração no firewall-cmd")
 
 echo "Configurando inicialização automática dos serviços"
 systemctl enable nagios httpd
