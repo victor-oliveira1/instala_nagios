@@ -151,7 +151,7 @@ echo "Iniciando serviços"
 systemctl start httpd nagios
 
 clear
-echo "Nagios 4.3.2 instalado!"
+echo "Nagios ${versao_nagios} + Plugins ${versao_plugins} instalado!"
 echo "Acesse o monitoramento através de um dos links:"
 for ip in $(for name in $(ifconfig|grep UP|cut -d ':' -f1); do ifconfig $name|grep netmask|cut -d ' ' -f10; done); do
 echo "http://$ip/nagios"
