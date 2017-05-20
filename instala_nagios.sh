@@ -21,7 +21,7 @@ case $teste in
 esac
 
 echo "Baixando pacotes necessários para compilar o programa"
-dnf -y install autoconf automake gcc gcc-c++ gd-devel httpd php wget net-tools curl sed|| (echo "Houve um erro na instalação."; exit)
+dnf -y install autoconf automake gcc gcc-c++ gd-devel httpd php wget net-tools curl sed
 
 clear
 echo "Verificando conexão com a internet"
