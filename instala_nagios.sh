@@ -1,6 +1,5 @@
 #!/bin/bash
 # Instalação automática do Nagios no Fedora
-# Programas utilizados:
 # victor.oliveira@gmx.com
 
 clear
