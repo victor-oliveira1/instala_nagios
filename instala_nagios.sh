@@ -3,7 +3,7 @@
 # victor.oliveira@gmx.com
 
 clear
-echo "Instalação automática - Nagios 4.3.2"
+echo "Instalação automática - Nagios + Plugins"
 
 #Verifica se o usuário é root
 id| grep root &> /dev/null
